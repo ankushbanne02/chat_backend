@@ -1,11 +1,10 @@
-# app.py
+import os
 from flask import Flask, request, jsonify
 import requests
 import json
 
 app = Flask(__name__)
 
-# --- Gemini API Key ---
 API_KEY = "AIzaSyAsndoGdHcrFdlQsoA-i1pghUT7gAzsrKU"
 MODEL = "gemini-2.0-flash"
 URL = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent"
@@ -17,11 +16,7 @@ def ask_gemini():
     if not question:
         return jsonify({"error": "No question provided"}), 400
 
-    payload = {
-        "contents": [
-            {"parts": [{"text": question}]}
-        ]
-    }
+    payload = {"contents": [{"parts": [{"text": question}]}]}
 
     try:
         response = requests.post(URL, params={"key": API_KEY}, headers={"Content-Type": "application/json"}, json=payload)
@@ -40,4 +35,5 @@ def ask_gemini():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))  # Use Render's PORT env variable
+    app.run(host="0.0.0.0", port=port, debug=True)
